@@ -1,3 +1,3 @@
-# chaincode boss
+# Chaincode ₿OSS
 
-[Chaindode BOSS 2026](https://bosschallenge.xyz/)
+[Chaincode ₿OSS Challenge 2026](https://bosschallenge.xyz/)
