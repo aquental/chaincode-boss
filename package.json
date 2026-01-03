@@ -1,0 +1,20 @@
+{
+  "name": "chaincode-boss",
+  "version": "1.0.0",
+  "description": "[Chaindode BOSS 2026](https://bosschallenge.xyz/)",
+  "homepage": "https://github.com/aquental/chaincode-boss#readme",
+  "bugs": {
+    "url": "https://github.com/aquental/chaincode-boss/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aquental/chaincode-boss.git"
+  },
+  "license": "MIT",
+  "author": "aquental",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

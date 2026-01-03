@@ -1,2 +1,3 @@
-# chaincode-boss
-Caindode BOSS 2026
+# chaincode boss
+
+[Chaindode BOSS 2026](https://bosschallenge.xyz/)
