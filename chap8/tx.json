@@ -1,0 +1,32 @@
+{
+  "txid": "7bd09aa3b4795be2839d9159edff0811d6d4ec5a64abd81c0da1e73ab00bf520",
+  "inputs": [
+    {
+      "txid": "d66ebcbf0483d0aa62b7555cd99d4320b498d49805b386183812e4921288c311",
+      "vout": 1,
+      "value": 312
+    },
+    {
+      "txid": "f0e76c3af14d45766d59aa86ea07adda819ec03e0bd7a253bb44be4ce164a040",
+      "vout": 1,
+      "value": 74567
+    }
+  ],
+  "outputs": [
+    {
+      "txid": "7bd09aa3b4795be2839d9159edff0811d6d4ec5a64abd81c0da1e73ab00bf520",
+      "vout": 0,
+      "value": 15842
+    },
+    {
+      "txid": "7bd09aa3b4795be2839d9159edff0811d6d4ec5a64abd81c0da1e73ab00bf520",
+      "vout": 1,
+      "value": 4085
+    },
+    {
+      "txid": "7bd09aa3b4795be2839d9159edff0811d6d4ec5a64abd81c0da1e73ab00bf520",
+      "vout": 2,
+      "value": 54252
+    }
+  ]
+}
