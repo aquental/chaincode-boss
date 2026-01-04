@@ -18,7 +18,8 @@ class MempoolTransaction:
         self.feerate = self.fee / self.weight if self.weight > 0 else 0
 
     def __lt__(self, other):
-        # Required for heapq (higher feerate first)
+        if abs(self.feerate - other.feerate) < 1e-8:  # nearly equal feerate
+            return self.fee > other.fee
         return self.feerate > other.feerate
 
 
