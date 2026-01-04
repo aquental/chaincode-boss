@@ -1,8 +1,11 @@
 import json
+import heapq
 from collections import OrderedDict
+from collections import defaultdict
 
 # Standard Bitcoin block weight limit (in weight units)
 MAX_BLOCK_WEIGHT = 4_000_000
+LOG = 1
 
 
 class MempoolTransaction:
@@ -10,66 +13,81 @@ class MempoolTransaction:
         self.txid = json_data["txid"]
         self.weight = json_data["weight"]
         self.fee = json_data["fee"]
-        # Ensure parents is always a list
         self.parents = json_data.get("parents", [])
+        # Pre-compute feerate once
+        self.feerate = self.fee / self.weight if self.weight > 0 else 0
 
-    # @prop erty
-    def feerate(self):
-        return self.fee / self.weight if self.weight > 0 else 0
+    def __lt__(self, other):
+        # Required for heapq (higher feerate first)
+        return self.feerate > other.feerate
 
 
 def assemble_block(mempool):
     """
-    Constructs a block by greedily selecting transactions with the highest feerate,
-    while allowing inclusion of transactions whose parents are already in the block
-    (opportunistic ancestor inclusion).
+    High-performance block assembly using a priority queue (max-heap by feerate)
+    and efficient dependency tracking.
     """
+    if not mempool:
+        return []
+
     block = []
     block_weight = 0
 
-    # Create a mutable list of transactions and compute feerate
-    transactions = list(mempool)
-    for tx in transactions:
-        tx.feerate = tx.fee / tx.weight  # Add feerate as attribute
+    # Build fast lookup structures
+    tx_by_id = {tx.txid: tx for tx in mempool}
+    # txid → set of unconfirmed parent txids
+    unconfirmed_parents = defaultdict(set)
 
-    def get_sorted_candidates():
-        return sorted(
-            transactions,
-            key=lambda tx: tx.feerate,
-            reverse=True
-        )
+    # Initialize dependency counts: how many parents are still unconfirmed
+    dependency_count = {}
+    for tx in mempool:
+        unconfirmed = 0
+        for parent in tx.parents:
+            if parent in tx_by_id:  # parent is in mempool
+                unconfirmed_parents[parent].add(tx.txid)
+                unconfirmed += 1
+        dependency_count[tx.txid] = unconfirmed
 
-    included_txids = set()  # Track which txids are already in the block
+    # Use a max-heap (priority queue) sorted by feerate
+    # Python's heapq is min-heap → use negative feerate or __lt__ override
+    candidates = [tx for tx in mempool if dependency_count[tx.txid] == 0]
+    heapq.heapify(candidates)  # O(n)
 
-    while True:
-        added = False
-        candidates = get_sorted_candidates()
-        print(
-            f"[assemble_block] Candidates left: {len(candidates)}, Block weight: {block_weight}, % of max: {block_weight / MAX_BLOCK_WEIGHT:.2%}")
+    included = set()
 
-        for tx in candidates:
-            # Check if all parents are either not in mempool or already included
-            if any(parent in {t.txid for t in transactions} and parent not in included_txids
-                   for parent in tx.parents):
-                continue  # Skip: has unconfirmed parent still in mempool
+    while candidates:
+        tx = heapq.heappop(candidates)  # O(log n)
+        if (LOG):
+            print(
+                f"[assemble_block] Processing tx: {tx.txid}, weight: {tx.weight}, feerate: {tx.feerate:.2f}, % of max weight: {tx.weight / MAX_BLOCK_WEIGHT:.6f}")
 
-            # Check weight limit
-            if block_weight + tx.weight > MAX_BLOCK_WEIGHT:
+        if tx.txid in included:
+            if (LOG):
                 print(
-                    f"[assemble_block] Block weight exceeded: {block_weight + tx.weight} > {MAX_BLOCK_WEIGHT} - TOO HEAVY")
-                continue  # Too heavy
+                    f"[assemble_block] Skipping already included tx: {tx.txid}")
+            continue  # Skip if already added (rare race)
 
-            # Valid to include!
-            block.append(tx.txid)
-            print(f"[assemble_block] Adding txid: {tx.txid}")
-            block_weight += tx.weight
-            included_txids.add(tx.txid)
-            transactions.remove(tx)  # Remove from consideration
-            added = True
-            break  # Restart loop to re-evaluate best candidate
+        # Check weight
+        if block_weight + tx.weight > MAX_BLOCK_WEIGHT:
+            if (LOG):
+                print(
+                    f"[assemble_block] Skipping tx: {tx.txid}, weight: {tx.weight}, feerate: {tx.feerate:.2f}")
+            continue  # Can't fit anymore
 
-        if not added:
-            break  # No more valid transactions can be added
+        # Include it!
+        block.append(tx.txid)
+        block_weight += tx.weight
+        included.add(tx.txid)
+        if (LOG):
+            print(
+                f"[assemble_block] Included tx: {tx.txid}, weight: {tx.weight}, feerate: {tx.feerate:.2f}")
+
+        # Unlock children (reduce their dependency count)
+        for child_txid in unconfirmed_parents[tx.txid]:
+            dependency_count[child_txid] -= 1
+            if dependency_count[child_txid] == 0:
+                child_tx = tx_by_id[child_txid]
+                heapq.heappush(candidates, child_tx)  # O(log n)
 
     return block
 
@@ -81,18 +99,24 @@ def import_mempool_from_json_file(file_path):
     mempool = []
     for tx in data:
         mempool.append(MempoolTransaction(tx))
-    print("[import_mempool_from_json_file] txs: ", len(mempool))
+    if (LOG):
+        print("[import_mempool_from_json_file] txs: ", len(mempool))
     return mempool
 
 
 def run():
     mempool = import_mempool_from_json_file("mempool.json")
     block = assemble_block(mempool)
+    if (LOG):
+        print("[run] block has {len(block)} lines")
     return block
 
 
 if __name__ == "__main__":
     block = run()
-    print("Assembled Block Transactions (txids):")
+    if (LOG):
+        print("Assembled Block Transactions (txids):")
+        print("number of txs:", len(block))
+        # print(block)
     for txid in block:
         print(txid)
