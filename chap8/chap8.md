@@ -60,3 +60,62 @@ At block height 209,999 the subsidy was 50 BTC. In the very next block at height
 AND THAT LAST HALVING WAS YESTERDAY!
 
 Finish the implementation of the following function that accepts a block height as an argument and returns the value of the subsidy in satoshis.
+
+## Block subsidy
+
+The block subsidy is the amount of bitcoin released into circulation from the coinbase of each new block. As there are only ~21 million total bitcoins able to be created there must be some diminishing euqation to allow for a coinbase subisdy that reaches the 21 million amount. The equation below visualizes what exists in bitcoin.
+
+What does this equation do? Well we know that the coinbase reward of the genesis block was 50 bitcoin and this is indicated with the numerator of the fraction on the right side of the equation. The denominator is the part of our equation that indicates by how much the reward will be decreased each halving, in this case 2, or by half. We also know that bitcoin is only aware of individual blocks as a chronological system so we make each halving 210,000 blocks long. Lastly we want to make each halving double each time so we want to double the amount the subsidy is halved by each halving so we raise 2 to the power of the current halving 'i' to the final halving epoch 32 iterations in the future.
+
+# The Coinbase Transaction
+
+There are four block candidates at height 6929851. Only one of them is a valid block, the other three were mined by Vanderpoole's cartel in reckless attempts to inflate the bitcoin money supply.
+
+Using the block subsidy function you wrote in the previous challenge and the JSON-RPC API, write a function to check the validity of a block candidate. Do this by checking if the coinbase output is correct. Your function should return true if the block is valid.
+
+Here's how your code will be used to find the one valid block at height 6929851:
+
+```python
+HEIGHT = 6929851
+candidates = Bitcoin.rpc("getblocksbyheight", HEIGHT)
+for bhash in candidates:
+    block = Bitcoin.rpc("getblock", bhash)
+    if validate_block(block):
+        print(bhash)
+        break
+```
+
+## Validating blocks
+
+Validating a block is incredibly important to the strength of the network as each block is built on transactions of previous blocks, if any block is discovered to be invalid in the past it can cause huge ramifications as a large chain of blocks comes into question with a previously invalid block.
+
+# Showtime!
+
+The cameras are rolling, two billion humans worldwide are tuned in to the live stream. Only a few minutes remain until the next commercial break. Deborah Chunk is sweating. Somehow, Holocat is also sweating. Somewhere on the other end of the call, Vanderpoole must be sweating, too. This is your moment.
+
+Starting with the valid block just before the one you found at height 6929851, find the longest chain of valid blocks you can. Store the chain as an array of block hashes. While you're at it, maintain an array of every invalid block you find as well, just to show the world how hard Vanderpoole tried to break bitcoin. It doesn't matter what order these invalid block hashes are in, but your valid chain MUST start with the hash of block 6929850 followed by one block hash at each height all the way up to the chain tip.
+
+Vanderpoole is sneaky! He mined valid blocks on top of invalid blocks, and invalid blocks on top of short chains of valid blocks! It's a maze, a minefield, out there. You may need to keep track of several valid branches as you traverse the tree. There will be valid blocks with valid parents that are not in the longest chain! In the end, there will be only one valid leaf with a greater height than all the others.
+
+Remember: Block objects returned by the JSON API have a property "prev" which identifies that block's parent by its hash:
+
+A block is ONLY valid if:
+
+Its coinbase output value is equal to the expected block subsidy plus the total transaction fees in the block.
+
+AND
+
+The block is a child of another VALID block. This is ensures a VALID CHAIN.
+
+Return a JSON object with two arrays labeled "valid" and "invalid":
+
+```json
+{
+  "valid": [...],
+  "invalid": [...]
+}
+```
+
+## Validating the chain
+
+Validating the blockchain in Bitcoin is crucial for maintaining the integrity and security of the entire network. Each transaction must be verified by miners to ensure that it is legitimate and follows the consensus rules established by the network. This validation process prevents double-spending and fraud, allowing users to trust the system without needing a central authority. Moreover, it enhances transparency, as all validated transactions are recorded on a public ledger, enabling anyone to audit the history of transactions.
