@@ -1,0 +1,61 @@
+scriptSigHex
+04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73
+
+
+echo $scriptSigHex | xxd -r -p
+
+44697374726963742032312c20426974636f696e2046726565646f6d205a6f6e65
+District 21, Bitcoin Freedom Zone
+
+
+
+---
+49a395df019afff1fc39d70cd6d7981ab4710836a9842e250643457d0b09d9c3
+
+Saving satoshi - BOSS
+
+
+B17C012FFFFFFFC0DEFFFFFFFFFFF5A4126FFFFFFF5A70581FFFFFFFT4BC02F7
+
+
+-- chap 9
+
+1: 1 2 OP_ADD
+2: SIG(HOLOCAT) PUBKEY(HOLOCAT) 
+3: 0 SIG(MIKA3000) SIG(DEBORAHCHUNK)
+4: SIG(HOLOCAT) [next block: 6930010
+5: 0 0
+6: OP_2 OP_PUSH(PUBKEY(VANDERPOOLE)) OP_PUSH(PUBKEY(me)) OP_2 OP_CHECKMULTISIG
+6: 0 SIG(VANDERPOOLE) SIG(ME)
+7: OP_PUSH(6930300) OP_CHECKLOCKTIMEVERIFY OP_DROP OP_PUSH(PUBKEY(HOHO)) OP_CHECKSIG
+7: 6930300
+7: a: SIG(me) 0
+7: b: SIG(vanderpoole) 1
+
+OP_IF
+    OP_PUSH(6930300) OP_CHECKLOCKTIMEVERIFY OP_DROP PUBKEY(me) OP_CHECKSIG
+OP_ELSE
+    PUBKEY(vanderpoole) OP_CHECKSIG
+OP_ENDIF
+
+Script Hint: The script allows spending under two conditions: before block 6930300 or after. Before the block, you can spend; after the block, Vanderpoole can.
+
+Stack Hint: To spend before the specified block, you use your signature. After the block, Vanderpoole uses his signature and needs to provide a 0 because the script has moved past the locktime verification.
+ 
+ 
+ 
+ - - - - - - oracle
+
+ Script Hint: The script allows spending under two conditions: before the secret has been revealed or after. Before the block, Vanderpoole can spend; after the block, you both can.
+
+Stack Hint: To spend before the secret is revealed, Vanderpoole uses his signature. After the secret is revealed, you use your signature, a hash of the secret, and provide a 0 because the script has moved past the unrevealed verification.
+
+OP_IF
+    PUBKEY(vanderpoole) OP_CHECKSIG
+OP_ELSE
+    OP_SHA256 OP_PUSH(HASH256(FD3771E8)) OP_EQUALVERIFY
+    PUBKEY(me) OP_CHECKSIG
+OP_ENDIF
+
+SIG(vanderpoole) 1
+SIG(me) FD3771E8 0
