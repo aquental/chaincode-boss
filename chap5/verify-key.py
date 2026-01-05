@@ -20,6 +20,7 @@ keys = [
     "04d1cdabaea3be5d8161b93b7e20b0375cefee0a36259d654185555deff881406a421384e927328e2dcb5ed87103365ef3007bd31e12591e5d1c56c83516db26ec"
 ]
 
+
 def verify(r, s, key, msg):
     if r == 0 or r >= GE.ORDER:
         print("FALSE - invalid r value")
@@ -34,7 +35,8 @@ def verify(r, s, key, msg):
 
     # Calculate u1 and u2
     u1 = (msg * sig_s_inverted) % GE.ORDER
-    u2 = (r * sig_s_inverted) % GE.ORDER  # Note: use r, not sig_r (but same value)
+    # Note: use r, not sig_r (but same value)
+    u2 = (r * sig_s_inverted) % GE.ORDER
 
     # Point multiplication: G * u1 + key * u2
     R1 = G.mul(u1)
@@ -64,3 +66,12 @@ def verify_keys(keys):
 
     # If no key matches
     return None
+
+
+if __name__ == "__main__":
+    matching_key = verify_keys(keys)
+    if matching_key:
+        print("Matching public key found:")
+        print(matching_key)
+    else:
+        print("No matching public key found.")

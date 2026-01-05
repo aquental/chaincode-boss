@@ -1,0 +1,19 @@
+version = 1
+revision = 3
+requires-python = ">=3.13"
+
+[[package]]
+name = "chap5"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "savingsatoshi-secp256k1py" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "savingsatoshi-secp256k1py", git = "https://github.com/saving-satoshi/secp256k1py.git" }]
+
+[[package]]
+name = "savingsatoshi-secp256k1py"
+version = "0.2.0"
+source = { git = "https://github.com/saving-satoshi/secp256k1py.git#ab0b62ea72ac9e3a2cef0dfa5ae7147db0e7fb75" }

@@ -1,0 +1,12 @@
+[project]
+name = "chap5"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "savingsatoshi-secp256k1py",
+]
+
+[tool.uv.sources]
+savingsatoshi-secp256k1py = { git = "https://github.com/saving-satoshi/secp256k1py.git" }
